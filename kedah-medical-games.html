@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kedah Medical Center — Medical Learning Games</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.19.0/webfont/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f4f6f9;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      color: #1a1a2e;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .header .cross {
+      font-size: 32px;
+      color: #1D9E75;
+      margin-bottom: 6px;
+    }
+    .tagline {
+      display: inline-block;
+      background: #E1F5EE;
+      color: #0F6E56;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 14px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #1a1a2e;
+      letter-spacing: -0.3px;
+    }
+    .header p {
+      font-size: 14px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Game grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .game-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 14px;
+      padding: 1.2rem 1rem;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+      text-align: center;
+    }
+    .game-card:hover {
+      border-color: #1D9E75;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(29,158,117,0.1);
+    }
+    .game-card.active {
+      border: 2px solid #1D9E75;
+      background: #f0fdf8;
+    }
+    .game-icon { font-size: 30px; margin-bottom: 8px; }
+    .game-card h3 { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .game-card p { font-size: 12px; color: #888; line-height: 1.4; }
+
+    /* Game area */
+    .game-area {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 14px;
+      padding: 1.5rem;
+      min-height: 340px;
+    }
+    .game-area h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Badges */
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .badge-teal  { background: #E1F5EE; color: #0F6E56; }
+    .badge-blue  { background: #E6F1FB; color: #185FA5; }
+    .badge-amber { background: #FAEEDA; color: #854F0B; }
+    .badge-pink  { background: #FBEAF0; color: #993556; }
+
+    /* Trivia */
+    .score-bar { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; margin-bottom: 1.2rem; }
+    .score-val { font-weight: 800; color: #1a1a2e; font-size: 15px; }
+    .trivia-q { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 1.2rem; line-height: 1.5; }
+    .options { display: grid; gap: 8px; }
+    .opt-btn {
+      background: #f7f8fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+      color: #1a1a2e;
+      font-family: 'Nunito', sans-serif;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .opt-btn:hover { background: #eef0f4; border-color: #bbb; }
+    .opt-btn.correct { background: #E1F5EE; border-color: #1D9E75; color: #085041; font-weight: 700; }
+    .opt-btn.wrong   { background: #FCEBEB; border-color: #E24B4A; color: #501313; }
+    .feedback {
+      margin-top: 1rem;
+      font-size: 14px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      display: none;
+      line-height: 1.5;
+    }
+    .feedback.show { display: block; }
+    .feedback.ok   { background: #E1F5EE; color: #085041; font-weight: 600; }
+    .feedback.nope { background: #FCEBEB; color: #501313; font-weight: 600; }
+    .next-btn {
+      margin-top: 1rem;
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      display: none;
+      transition: background 0.12s;
+    }
+    .next-btn:hover { background: #178f68; }
+    .next-btn.show  { display: inline-block; }
+
+    /* Sort */
+    .sort-intro { font-size: 14px; color: #666; margin-bottom: 1rem; }
+    .sort-list { display: flex; flex-direction: column; gap: 8px; }
+    .sort-item {
+      background: #f7f8fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: grab;
+      font-size: 14px;
+      color: #1a1a2e;
+      user-select: none;
+      transition: background 0.12s;
+    }
+    .sort-item:active { cursor: grabbing; background: #eef0f4; }
+    .sort-item.dragging { opacity: 0.4; }
+    .sort-handle { color: #aaa; font-size: 16px; }
+    .sort-num {
+      background: #E1F5EE;
+      color: #0F6E56;
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .check-sort-btn {
+      margin-top: 1rem;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      color: #1a1a2e;
+      transition: background 0.12s;
+    }
+    .check-sort-btn:hover { background: #f0f0f0; }
+
+    /* Match */
+    .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .match-col { display: flex; flex-direction: column; gap: 8px; }
+    .match-col-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .match-btn {
+      background: #f7f8fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      text-align: center;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      color: #1a1a2e;
+      transition: background 0.12s, border-color 0.12s;
+      line-height: 1.4;
+    }
+    .match-btn:hover { border-color: #aaa; }
+    .match-btn.selected  { border: 2px solid #1D9E75; background: #E1F5EE; color: #085041; font-weight: 700; }
+    .match-btn.matched   { background: #E1F5EE; border-color: #1D9E75; color: #085041; font-weight: 700; cursor: default; }
+    .match-btn.wrong-match { background: #FCEBEB; border-color: #E24B4A; color: #501313; }
+
+    /* Triage */
+    .vital-case {
+      background: #f7f8fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .vital-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .vital-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .vital-chip {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .vital-chip.high   { background: #FAECE7; color: #993C1D; border-color: #D85A30; }
+    .vital-chip.normal { background: #E1F5EE; color: #0F6E56; border-color: #1D9E75; }
+    .vital-chip.low    { background: #E6F1FB; color: #185FA5; border-color: #378ADD; }
+    .triage-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .triage-btn {
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 9px 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      background: #fff;
+      color: #1a1a2e;
+      transition: background 0.12s;
+    }
+    .triage-btn:hover { background: #f0f0f0; }
+    .triage-btn:disabled { opacity: 0.6; cursor: default; }
+    .triage-btn.red    { border-color: #E24B4A; }
+    .triage-btn.yellow { border-color: #BA7517; }
+    .triage-btn.green  { border-color: #1D9E75; }
+    .triage-result {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 10px;
+      display: none;
+      line-height: 1.5;
+    }
+    .triage-result.show    { display: block; }
+    .triage-result.correct { background: #E1F5EE; color: #085041; }
+    .triage-result.incorrect { background: #FCEBEB; color: #501313; }
+
+    /* Welcome */
+    .welcome { text-align: center; padding: 2.5rem 1rem; }
+    .welcome-icon { font-size: 44px; margin-bottom: 12px; }
+    .welcome h3 { font-size: 17px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+    .welcome p  { font-size: 14px; color: #888; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="cross">✚</div>
+    <div><span class="tagline">Kedah Medical Center</span></div>
+    <h1>Medical Learning Games</h1>
+    <p>Fun, educational games for healthcare staff &amp; patients</p>
+  </div>
+
+  <div class="game-grid">
+    <div class="game-card" onclick="showGame('trivia')" id="card-trivia">
+      <div class="game-icon">🧠</div>
+      <h3>Medical Trivia</h3>
+      <p>Test your medical knowledge</p>
+    </div>
+    <div class="game-card" onclick="showGame('sort')" id="card-sort">
+      <div class="game-icon">📋</div>
+      <h3>CPR Steps</h3>
+      <p>Sort the correct sequence</p>
+    </div>
+    <div class="game-card" onclick="showGame('match')" id="card-match">
+      <div class="game-icon">🔗</div>
+      <h3>Term Match</h3>
+      <p>Match terms to definitions</p>
+    </div>
+    <div class="game-card" onclick="showGame('triage')" id="card-triage">
+      <div class="game-icon">🚨</div>
+      <h3>Triage Trainer</h3>
+      <p>Classify patient urgency</p>
+    </div>
+  </div>
+
+  <div class="game-area" id="game-area">
+    <div class="welcome">
+      <div class="welcome-icon">🏥</div>
+      <h3>Select a game above to begin</h3>
+      <p>Each game is designed to reinforce medical knowledge in an engaging way.</p>
+    </div>
+  </div>
+
+  <div class="footer">© Kedah Medical Center — Medical Learning Games</div>
+</div>
+
+<script>
+const triviaBank = [
+  { q: "What is the normal resting heart rate for adults?", opts: ["40–60 bpm","60–100 bpm","100–120 bpm","120–150 bpm"], ans: 1, exp: "Normal adult resting heart rate is 60–100 bpm." },
+  { q: "Which blood type is known as the universal donor?", opts: ["AB+","O-","A+","B-"], ans: 1, exp: "O- can be given to anyone as it has no A, B, or Rh antigens." },
+  { q: "What does 'PRN' mean in prescriptions?", opts: ["Per rectal route","As needed","Before meals","Twice daily"], ans: 1, exp: "PRN stands for 'pro re nata' — as needed." },
+  { q: "Normal systolic blood pressure for adults?", opts: ["80–100 mmHg","90–110 mmHg","Below 120 mmHg is ideal","150–170 mmHg"], ans: 2, exp: "Below 120 mmHg systolic is considered normal/ideal." },
+  { q: "How many bones are in the adult human body?", opts: ["186","206","226","246"], ans: 1, exp: "Adults have 206 bones; infants start with ~270 which fuse over time." },
+  { q: "What is the role of insulin in the body?", opts: ["Digests fat","Lowers blood glucose","Raises blood pressure","Filters blood"], ans: 1, exp: "Insulin is produced by the pancreas and lowers blood glucose levels." },
+  { q: "Which organ produces bile?", opts: ["Pancreas","Liver","Gallbladder","Kidney"], ans: 1, exp: "Bile is produced by the liver and stored in the gallbladder." },
+  { q: "What is the primary function of red blood cells?", opts: ["Fight infection","Transport oxygen","Clot blood","Produce hormones"], ans: 1, exp: "Red blood cells carry hemoglobin to transport oxygen around the body." },
+];
+
+const cprSteps = [
+  "Ensure scene safety",
+  "Check for responsiveness",
+  "Call for emergency help (999)",
+  "Check for breathing",
+  "Begin 30 chest compressions",
+  "Give 2 rescue breaths",
+  "Continue CPR cycle",
+  "Use AED when available"
+];
+
+const matchPairs = [
+  { term: "Hypertension",  def: "High blood pressure" },
+  { term: "Tachycardia",   def: "Rapid heart rate >100 bpm" },
+  { term: "Bradycardia",   def: "Slow heart rate <60 bpm" },
+  { term: "Hypoglycemia",  def: "Low blood sugar" },
+  { term: "Dyspnea",       def: "Difficulty breathing" },
+];
+
+const triageCases = [
+  {
+    vitals: [
+      { label:"HR",   value:"132 bpm",      cls:"high" },
+      { label:"BP",   value:"80/50 mmHg",   cls:"high" },
+      { label:"SpO2", value:"88%",           cls:"high" },
+      { label:"Temp", value:"39.8°C",        cls:"high" }
+    ],
+    symptom: "Patient is confused, barely responsive, reports severe chest pain for 20 mins.",
+    ans: "red",
+    exp: "Hemodynamically unstable with altered consciousness — Immediate (Red)."
+  },
+  {
+    vitals: [
+      { label:"HR",   value:"88 bpm",        cls:"normal" },
+      { label:"BP",   value:"128/82 mmHg",   cls:"normal" },
+      { label:"SpO2", value:"97%",            cls:"normal" },
+      { label:"Temp", value:"37.2°C",         cls:"normal" }
+    ],
+    symptom: "Patient has a small laceration on the forearm, alert and talking, no significant bleeding.",
+    ans: "green",
+    exp: "Stable vitals and minor injury — Non-Urgent (Green)."
+  },
+  {
+    vitals: [
+      { label:"HR",   value:"108 bpm",       cls:"high" },
+      { label:"BP",   value:"145/92 mmHg",   cls:"high" },
+      { label:"SpO2", value:"94%",            cls:"normal" },
+      { label:"Temp", value:"38.5°C",         cls:"high" }
+    ],
+    symptom: "Moderate shortness of breath, alert but anxious, started 2 hours ago.",
+    ans: "yellow",
+    exp: "Unstable but not immediately life-threatening — Urgent (Yellow)."
+  },
+];
+
+let triviaIndex = 0, triviaScore = 0, triviaAnswered = false;
+let triageIdx = 0, triageAnswered = false;
+let matchSelected = null, matchPaired = [];
+let sortDragSrc = null;
+
+function showGame(id) {
+  document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('card-' + id).classList.add('active');
+  const area = document.getElementById('game-area');
+  if (id === 'trivia') renderTrivia(area);
+  if (id === 'sort')   renderSort(area);
+  if (id === 'match')  renderMatch(area);
+  if (id === 'triage') renderTriage(area);
+}
+
+/* ── TRIVIA ── */
+function renderTrivia(area) {
+  triviaIndex = 0; triviaScore = 0; triviaAnswered = false;
+  const q = triviaBank[0];
+  area.innerHTML = `
+    <h2>🧠 Medical Trivia <span class="badge badge-teal">×${triviaBank.length} Questions</span></h2>
+    <div class="score-bar">Question <span id="q-num">1</span> of ${triviaBank.length} &nbsp;·&nbsp; Score <span class="score-val" id="score-val">0</span></div>
+    <div class="trivia-q" id="trivia-q">${q.q}</div>
+    <div class="options" id="options">${q.opts.map((o,i)=>`<button class="opt-btn" onclick="checkTrivia(${i})">${o}</button>`).join('')}</div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="next-btn" onclick="nextTrivia()">Next question →</button>
+  `;
+  triviaAnswered = false;
+}
+
+function checkTrivia(idx) {
+  if (triviaAnswered) return;
+  triviaAnswered = true;
+  const q = triviaBank[triviaIndex];
+  document.querySelectorAll('.opt-btn').forEach((b,i) => {
+    if (i === q.ans) b.classList.add('correct');
+    else if (i === idx) b.classList.add('wrong');
+    b.onclick = null;
+  });
+  const fb = document.getElementById('feedback');
+  if (idx === q.ans) {
+    triviaScore++;
+    document.getElementById('score-val').textContent = triviaScore;
+    fb.className = 'feedback ok show';
+    fb.textContent = '✓ Correct! ' + q.exp;
+  } else {
+    fb.className = 'feedback nope show';
+    fb.textContent = '✗ Not quite. ' + q.exp;
+  }
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+function nextTrivia() {
+  triviaIndex++;
+  if (triviaIndex >= triviaBank.length) {
+    document.getElementById('game-area').innerHTML = `
+      <h2>🏆 Game Over!</h2>
+      <div style="text-align:center;padding:2rem 0;">
+        <div style="font-size:48px;margin-bottom:12px;">🏆</div>
+        <div style="font-size:22px;font-weight:800;margin-bottom:6px;">Score: ${triviaScore}/${triviaBank.length}</div>
+        <div style="font-size:14px;color:#666;margin-bottom:1.5rem;">${triviaScore>=6?'Excellent work!':triviaScore>=4?'Good effort, keep practicing!':'Keep learning — you\'ll get there!'}</div>
+        <button class="next-btn show" onclick="showGame('trivia')">Play again</button>
+      </div>`;
+    return;
+  }
+  const q = triviaBank[triviaIndex];
+  document.getElementById('q-num').textContent = triviaIndex + 1;
+  document.getElementById('trivia-q').textContent = q.q;
+  document.getElementById('options').innerHTML = q.opts.map((o,i)=>`<button class="opt-btn" onclick="checkTrivia(${i})">${o}</button>`).join('');
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').className = 'next-btn';
+  triviaAnswered = false;
+}
+
+/* ── SORT ── */
+function renderSort(area) {
+  const shuffled = [...Array(cprSteps.length).keys()].sort(() => Math.random() - 0.5);
+  area.innerHTML = `
+    <h2>📋 CPR Step Sequence <span class="badge badge-blue">Drag to reorder</span></h2>
+    <p class="sort-intro">Drag and drop the CPR steps into the correct order, then check your answer.</p>
+    <div class="sort-list" id="sort-list">${shuffled.map((i,pos)=>`
+      <div class="sort-item" draggable="true" data-idx="${i}">
+        <span class="sort-handle">⠿</span>
+        <span class="sort-num">${pos+1}</span>
+        <span>${cprSteps[i]}</span>
+      </div>`).join('')}</div>
+    <button class="check-sort-btn" onclick="checkSort()">Check my order</button>
+    <div class="feedback" id="sort-fb"></div>
+  `;
+  bindDrag();
+}
+
+function bindDrag() {
+  const list = document.getElementById('sort-list');
+  list.querySelectorAll('.sort-item').forEach(item => {
+    item.addEventListener('dragstart', e => { sortDragSrc = item; item.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    item.addEventListener('dragend',   () => { item.classList.remove('dragging'); updateSortNums(); });
+    item.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      if (sortDragSrc !== item) {
+        const items = [...list.querySelectorAll('.sort-item')];
+        const from = items.indexOf(sortDragSrc), to = items.indexOf(item);
+        if (from < to) list.insertBefore(sortDragSrc, item.nextSibling);
+        else list.insertBefore(sortDragSrc, item);
+        updateSortNums();
+      }
+    });
+  });
+}
+
+function updateSortNums() {
+  document.querySelectorAll('.sort-num').forEach((n,i) => n.textContent = i + 1);
+}
+
+function checkSort() {
+  const list = document.getElementById('sort-list');
+  const order = [...list.querySelectorAll('.sort-item')].map(i => parseInt(i.dataset.idx));
+  const correct = order.every((v,i) => v === i);
+  const fb = document.getElementById('sort-fb');
+  if (correct) {
+    fb.className = 'feedback ok show';
+    fb.textContent = '✓ Perfect order! You have the CPR sequence correct.';
+  } else {
+    fb.className = 'feedback nope show';
+    fb.textContent = '✗ Not quite. Correct order: ' + cprSteps.map((s,i)=>`${i+1}. ${s}`).join(' → ');
+  }
+}
+
+/* ── MATCH ── */
+function renderMatch(area) {
+  matchSelected = null; matchPaired = [];
+  const shuffledDefs = [...matchPairs].sort(() => Math.random() - 0.5);
+  area.innerHTML = `
+    <h2>🔗 Medical Term Match <span class="badge badge-amber">Click to pair</span></h2>
+    <p style="font-size:14px;color:#666;margin-bottom:1rem;">Click a term, then click its matching definition.</p>
+    <div class="match-grid">
+      <div class="match-col">
+        <div class="match-col-label">Terms</div>
+        ${matchPairs.map((p,i)=>`<button class="match-btn" id="term-${i}" onclick="selectMatch('term',${i})">${p.term}</button>`).join('')}
+      </div>
+      <div class="match-col">
+        <div class="match-col-label">Definitions</div>
+        ${shuffledDefs.map((p,i)=>`<button class="match-btn" id="def-${i}" onclick="selectMatch('def',${i})" data-def="${p.def}">${p.def}</button>`).join('')}
+      </div>
+    </div>
+    <div class="feedback" id="match-fb"></div>
+  `;
+}
+
+function selectMatch(type, idx) {
+  if (!matchSelected) {
+    if (type !== 'term') return;
+    const btn = document.getElementById('term-' + idx);
+    if (btn.classList.contains('matched')) return;
+    matchSelected = { type, idx };
+    document.querySelectorAll('.match-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  } else {
+    if (type !== 'def') {
+      document.querySelectorAll('.match-btn').forEach(b => b.classList.remove('selected'));
+      matchSelected = null; return;
+    }
+    const defBtn = document.getElementById('def-' + idx);
+    if (defBtn.classList.contains('matched')) { matchSelected = null; return; }
+    const termPair = matchPairs[matchSelected.idx];
+    const termBtn  = document.getElementById('term-' + matchSelected.idx);
+    if (defBtn.dataset.def === termPair.def) {
+      termBtn.classList.remove('selected'); termBtn.classList.add('matched'); termBtn.onclick = null;
+      defBtn.classList.add('matched'); defBtn.onclick = null;
+      matchPaired.push(matchSelected.idx);
+      if (matchPaired.length === matchPairs.length) {
+        const fb = document.getElementById('match-fb');
+        fb.className = 'feedback ok show';
+        fb.textContent = '🎉 All matched correctly! Great work!';
+      }
+    } else {
+      termBtn.classList.remove('selected');
+      termBtn.classList.add('wrong-match');
+      defBtn.classList.add('wrong-match');
+      setTimeout(() => { termBtn.classList.remove('wrong-match'); defBtn.classList.remove('wrong-match'); }, 700);
+    }
+    matchSelected = null;
+  }
+}
+
+/* ── TRIAGE ── */
+function renderTriage(area) {
+  triageIdx = 0; triageAnswered = false;
+  renderTriageCase(area);
+}
+
+function renderTriageCase(area) {
+  const c = triageCases[triageIdx];
+  area.innerHTML = `
+    <h2>🚨 Triage Trainer <span class="badge badge-pink">Case ${triageIdx+1}/${triageCases.length}</span></h2>
+    <div class="vital-case">
+      <div class="vital-label">Vitals</div>
+      <div class="vital-row">${c.vitals.map(v=>`<span class="vital-chip ${v.cls}">${v.label}: ${v.value}</span>`).join('')}</div>
+      <div style="font-size:14px;color:#1a1a2e;margin-top:6px;line-height:1.5;">${c.symptom}</div>
+    </div>
+    <div style="font-size:14px;font-weight:700;color:#666;margin-bottom:8px;">Assign triage priority:</div>
+    <div class="triage-btns">
+      <button class="triage-btn red"    onclick="checkTriage('red')">🔴 Immediate</button>
+      <button class="triage-btn yellow" onclick="checkTriage('yellow')">🟡 Urgent</button>
+      <button class="triage-btn green"  onclick="checkTriage('green')">🟢 Non-Urgent</button>
+    </div>
+    <div class="triage-result" id="triage-result"></div>
+    <button class="next-btn" id="triage-next" onclick="nextTriage()">Next case →</button>
+  `;
+  triageAnswered = false;
+}
+
+function checkTriage(pick) {
+  if (triageAnswered) return;
+  triageAnswered = true;
+  const c = triageCases[triageIdx];
+  document.querySelectorAll('.triage-btn').forEach(b => b.disabled = true);
+  const res = document.getElementById('triage-result');
+  if (pick === c.ans) {
+    res.className = 'triage-result correct show';
+    res.textContent = '✓ Correct! ' + c.exp;
+  } else {
+    res.className = 'triage-result incorrect show';
+    res.textContent = '✗ Not quite. ' + c.exp;
+  }
+  document.getElementById('triage-next').className = 'next-btn show';
+}
+
+function nextTriage() {
+  triageIdx++;
+  if (triageIdx >= triageCases.length) {
+    document.getElementById('game-area').innerHTML = `
+      <h2>🚑 All Cases Completed!</h2>
+      <div style="text-align:center;padding:2rem 0;">
+        <div style="font-size:40px;margin-bottom:10px;">🚑</div>
+        <div style="font-size:18px;font-weight:800;margin-bottom:6px;">You've completed all triage cases!</div>
+        <div style="font-size:14px;color:#666;margin-bottom:1.5rem;">Keep practicing to sharpen your clinical decision-making.</div>
+        <button class="next-btn show" onclick="showGame('triage')">Try again</button>
+      </div>`;
+    return;
+  }
+  renderTriageCase(document.getElementById('game-area'));
+}
+</script>
+</body>
+</html>
